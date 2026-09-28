@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order | EventPro</title><link rel="stylesheet" href="css/style.css"></head>
+<body>
+<nav class="navbar dark"><a class="logo" href="index.html">Event<span>Pro</span></a>
+<div class="nav-links"><a href="index.html">Home</a><a href="products.html">Materials</a><a href="about.html">About</a><a href="contact.html">Contact</a></div></nav>
+<main class="form-section"><div class="form-card"><h1>Place Your Order</h1>
+<form id="orderForm">
+<label>Customer Name<input id="name" type="text" required></label>
+<label>Phone Number<input id="phone" type="tel" pattern="[0-9]{10}" placeholder="10-digit number" required></label>
+<label>Email<input id="email" type="email" required></label>
+<label>Event Type<select id="eventType"><option>Wedding</option><option>Birthday</option><option>College Event</option><option>Corporate Event</option><option>Other</option></select></label>
+<label>Material<select id="material"></select></label>
+<label>Quantity<input id="quantity" type="number" min="1" value="1" required></label>
+<label>Event Date<input id="date" type="date" required></label>
+<label>Delivery Address<textarea id="address" rows="4" required></textarea></label>
+<div id="total" class="total">Total: ₹0</div>
+<button class="btn" type="submit">Submit Order</button>
+</form><div id="message"></div></div></main>
+<footer><p>© 2026 EventPro Event Material Supply</p></footer>
+<script src="js/order.js"></script></body></html>
