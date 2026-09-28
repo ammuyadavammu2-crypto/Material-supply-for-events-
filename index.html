@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MovieBook - Movie Ticket Booking</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f5f7;color:#222}
+header{background:#222;color:#fff;padding:18px 7%;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+.logo{font-size:25px;font-weight:700}.location{font-size:15px}
+.hero{background:linear-gradient(120deg,#25164d,#6537b8);color:#fff;padding:45px 8%}
+.hero h1{font-size:40px;margin:8px 0}.hero span{color:#ffd166}
+.container{max-width:1050px;margin:25px auto;padding:0 15px}
+.card,.payment,.success{background:#fff;border-radius:16px;padding:25px;margin-bottom:20px;box-shadow:0 5px 20px #0001}
+h2{margin-top:0}
+.movies{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px}
+.movie{border:2px solid #eee;border-radius:12px;padding:15px;cursor:pointer}
+.movie.active{border-color:#e63946;background:#fff5f5}
+.poster{height:110px;border-radius:10px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:45px}
+.movie h3{margin-bottom:5px}.movie p{color:#777;font-size:13px}
+.shows{display:flex;flex-wrap:wrap;gap:10px}
+.show{padding:12px 17px;border:1px solid #ccc;background:#fff;border-radius:8px;cursor:pointer}
+.show.active{background:#e63946;color:white;border-color:#e63946}
+.screen{width:70%;margin:10px auto 28px;height:14px;background:#bbb;border-radius:50%;text-align:center;font-size:10px;padding-top:18px;color:#777}
+.seats{display:grid;grid-template-columns:repeat(8,38px);gap:9px;justify-content:center}
+.seat{height:32px;border:0;border-radius:7px;background:#ddd;cursor:pointer}
+.seat.selected{background:#2a9d8f;color:white}.seat.booked{background:#777;color:white;cursor:not-allowed}
+.legend{display:flex;justify-content:center;gap:20px;margin-top:25px;font-size:13px}
+.legend i{display:inline-block;width:18px;height:15px;border-radius:5px;background:#ddd;vertical-align:middle;margin-right:5px}
+.legend .s{background:#2a9d8f}.legend .b{background:#777}
+.row{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:12px 0}
+.total{font-size:20px;border:0}
+button.primary{width:100%;padding:14px;background:#e63946;color:white;border:0;border-radius:9px;font-weight:bold;cursor:pointer;margin-top:12px}
+.hidden{display:none}
+.payment{max-width:650px;margin:30px auto}.methods{display:flex;gap:10px;margin:20px 0;flex-wrap:wrap}
+.method{padding:12px;border:1px solid #ccc;background:white;border-radius:8px;cursor:pointer}.method.active{border-color:#e63946;color:#e63946}
+input{width:100%;padding:13px;border:1px solid #bbb;border-radius:8px;margin:8px 0}
+.success{max-width:700px;margin:30px auto;text-align:center}
+.tick{width:70px;height:70px;border-radius:50%;background:#2a9d8f;color:white;display:flex;align-items:center;justify-content:center;font-size:40px;margin:auto}
+.ticket{text-align:left;border:1px dashed #aaa;border-radius:12px;padding:20px;margin:25px 0}
+.tickettop{display:flex;justify-content:space-between;gap:15px}.ticket hr{border:0;border-top:1px dashed #ccc;margin:18px 0}
+.details{display:grid;grid-template-columns:1fr 1fr;gap:18px}.details span{display:block;color:#888;font-size:12px;margin-bottom:4px}
+.actions{display:flex;gap:10px}.actions button{flex:1;padding:13px;border:0;border-radius:8px;cursor:pointer;font-weight:bold}
+.print{background:#eee}.close{background:#e63946;color:white}
+.note{font-size:12px;color:#777}
+footer{text-align:center;padding:30px;color:#777}
+@media(max-width:600px){.hero h1{font-size:30px}.seats{grid-template-columns:repeat(8,30px);gap:6px}.seat{height:28px}.tickettop{flex-direction:column}.actions{flex-direction:column}}
+@media print{header,.hero,footer,.actions,.note{display:none!important}.success{box-shadow:none;margin:0}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🎬 MovieBook</div>
+  <div class="location">📍 Nellore</div>
+</header>
+
+<section class="hero">
+  <h1>Book your movie <span>in a few clicks.</span></h1>
+  <p>Select a movie, show time and seats, then complete the demo booking.</p>
+</section>
+
+<main class="container" id="mainBooking">
+
+<section class="card">
+<h2>1. Choose a Movie</h2>
+<div class="movies" id="movies"></div>
+</section>
+
+<section class="card">
+<h2>2. Choose a Show</h2>
+<div class="shows" id="shows"></div>
+</section>
+
+<section class="card">
+<h2>3. Choose Your Seats</h2>
+<div class="screen">SCREEN</div>
+<div class="seats" id="seats"></div>
+<div class="legend">
+<span><i></i> Available</span>
+<span><i class="s"></i> Selected</span>
+<span><i class="b"></i> Booked</span>
+</div>
+</section>
+
+<section class="card">
+<h2>4. Booking Summary</h2>
+<div class="row"><span>Movie</span><strong id="smovie">-</strong></div>
+<div class="row"><span>Show</span><strong id="sshow">-</strong></div>
+<div class="row"><span>Seats</span><strong id="sseats">-</strong></div>
+<div class="row"><span>Tickets</span><strong id="stickets">0</strong></div>
+<div class="row total"><span>Total</span><strong>₹<span id="stotal">0</span></strong></div>
+<button class="primary" id="continue">Continue to Payment</button>
+</section>
+</main>
+
+<section class="payment hidden" id="payment">
+<button id="back" style="border:0;background:none;color:#e63946;cursor:pointer">← Back</button>
+<h2>Payment</h2>
+<p>Demo payment only. No real money is charged.</p>
+<div class="methods">
+<button class="method active" data-method="UPI">📱 UPI</button>
+<button class="method" data-method="Card">💳 Card</button>
+<button class="method" data-method="Net Banking">🏦 Net Banking</button>
+</div>
+<form id="payForm">
+<label id="payLabel">UPI ID</label>
+<input id="payInput" required placeholder="example@upi">
+<button class="primary" type="submit">Pay ₹<span id="payAmount">0</span></button>
+</form>
+</section>
+
+<section class="success hidden" id="success">
+<div class="tick">✓</div>
+<h1>Booking Successful!</h1>
+<p>Your movie tickets have been booked successfully.</p>
+<div class="ticket">
+<div class="tickettop">
+<div><small>MOVIE</small><h2 id="tmovie">-</h2></div>
+<div><small>BOOKING ID</small><strong id="tid">-</strong></div>
+</div>
+<hr>
+<div class="details">
+<div><span>Date</span><strong id="tdate">-</strong></div>
+<div><span>Show</span><strong id="tshow">-</strong></div>
+<div><span>Seats</span><strong id="tseats">-</strong></div>
+<div><span>Amount</span><strong>₹<span id="tamount">0</span></strong></div>
+</div>
+</div>
+<div class="actions">
+<button class="print" id="print">🖨 Print Ticket</button>
+<button class="close" id="close">✕ Close Booking Window</button>
+</div>
+<p class="note" id="note"></p>
+</section>
+
+<footer>MovieBook Demo • HTML + CSS + JavaScript</footer>
+
+<script>
+const movieData=[
+ {name:"Kingdom",lang:"Telugu",genre:"Action • Drama",icon:"🎬"},
+ {name:"Retro",lang:"Telugu",genre:"Drama • Romance",icon:"🎞️"},
+ {name:"Galaxy",lang:"English",genre:"Sci-Fi • Adventure",icon:"🚀"},
+ {name:"Laugh Out",lang:"Hindi",genre:"Comedy",icon:"😂"}
+];
+const times=["10:00 AM","1:30 PM","4:30 PM","7:30 PM","10:00 PM"];
+const booked=new Set(["A3","B5","C2","D7","E4","F6"]);
+let selectedMovie=null,selectedShow=null,selectedSeats=[],method="UPI";
+
+const $=id=>document.getElementById(id);
+
+movieData.forEach((m,i)=>{
+ const d=document.createElement("div"); d.className="movie";
+ d.innerHTML=`<div class="poster">${m.icon}</div><h3>${m.name}</h3><p>${m.lang} • ${m.genre}</p>`;
+ d.onclick=()=>chooseMovie(i,d); $("movies").appendChild(d);
+});
+
+function chooseMovie(i,el){
+ selectedMovie=movieData[i]; selectedShow=null; selectedSeats=[];
+ document.querySelectorAll(".movie").forEach(x=>x.classList.remove("active")); el.classList.add("active");
+ $("shows").innerHTML="";
+ times.forEach(t=>{
+  const b=document.createElement("button"); b.className="show"; b.textContent=t;
+  b.onclick=()=>chooseShow(t,b); $("shows").appendChild(b);
+ });
+ renderSeats(); update();
+}
+function chooseShow(t,el){
+ selectedShow=t; selectedSeats=[];
+ document.querySelectorAll(".show").forEach(x=>x.classList.remove("active")); el.classList.add("active");
+ renderSeats(); update();
+}
+function renderSeats(){
+ $("seats").innerHTML="";
+ ["A","B","C","D","E","F"].forEach(r=>{
+  for(let n=1;n<=8;n++){
+   const id=r+n,b=document.createElement("button");
+   b.className="seat"; b.textContent=n;
+   if(booked.has(id)) b.classList.add("booked");
+   if(selectedSeats.includes(id)) b.classList.add("selected");
+   b.onclick=()=>{
+    if(booked.has(id)) return;
+    selectedSeats=selectedSeats.includes(id)?selectedSeats.filter(x=>x!==id):[...selectedSeats,id];
+    renderSeats();update();
+   };
+   $("seats").appendChild(b);
+  }
+ });
+}
+function update(){
+ $("smovie").textContent=selectedMovie?.name||"-";
+ $("sshow").textContent=selectedShow||"-";
+ $("sseats").textContent=selectedSeats.length?selectedSeats.join(", "):"-";
+ $("stickets").textContent=selectedSeats.length;
+ $("stotal").textContent=selectedSeats.length*180;
+ $("payAmount").textContent=selectedSeats.length*180;
+}
+$("continue").onclick=()=>{
+ if(!selectedMovie)return alert("Please select a movie.");
+ if(!selectedShow)return alert("Please select a show time.");
+ if(!selectedSeats.length)return alert("Please select at least one seat.");
+ $("mainBooking").classList.add("hidden"); $("payment").classList.remove("hidden"); scrollTo(0,0);
+};
+$("back").onclick=()=>{$("payment").classList.add("hidden");$("mainBooking").classList.remove("hidden");};
+document.querySelectorAll(".method").forEach(b=>b.onclick=()=>{
+ document.querySelectorAll(".method").forEach(x=>x.classList.remove("active"));b.classList.add("active");method=b.dataset.method;
+ $("payLabel").textContent=method==="UPI"?"UPI ID":method==="Card"?"Card Number":"Bank / Account Reference";
+ $("payInput").placeholder=method==="UPI"?"example@upi":method==="Card"?"1234 5678 9012 3456":"Demo reference";
+});
+$("payForm").onsubmit=e=>{
+ e.preventDefault(); if(!$("payInput").value.trim())return;
+ const id="MB"+Date.now().toString().slice(-8);
+ $("tmovie").textContent=selectedMovie.name;$("tid").textContent=id;
+ $("tdate").textContent=new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+ $("tshow").textContent=selectedShow;$("tseats").textContent=selectedSeats.join(", ");
+ $("tamount").textContent=selectedSeats.length*180;
+ $("payment").classList.add("hidden");$("success").classList.remove("hidden");scrollTo(0,0);
+};
+$("print").onclick=()=>print();
+$("close").onclick=()=>{
+ window.close();
+ $("note").textContent="If this tab does not close, the browser is blocking scripts from closing a tab that was opened manually. You can close the tab normally.";
+};
+renderSeats();update();
+</script>
+</body>
+</html>
