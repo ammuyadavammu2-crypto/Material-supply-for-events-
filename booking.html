@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Event Booking</title><link rel="stylesheet" href="css/style.css"></head>
+<body>
+<header><h1>📅 Event Booking</h1><nav><a href="index.html">Home</a><a href="menu.html">Menu</a><a href="booking.html">Booking</a></nav></header>
+<main class="form-box"><h2>Customer & Event Details</h2>
+<form id="bookingForm">
+<label>Name<input id="name" required></label>
+<label>Phone<input id="phone" type="tel" pattern="[0-9]{10}" required></label>
+<label>Event Date<input id="date" type="date" required></label>
+<label>Event Type<select id="eventType"><option>Wedding</option><option>Birthday</option><option>College Event</option><option>Corporate Event</option><option>Other</option></select></label>
+<label>Number of Guests<input id="guests" type="number" min="1" required></label>
+<label>Delivery Address<textarea id="address" required></textarea></label>
+<button type="submit">Confirm Booking</button>
+</form><p id="message"></p></main>
+<script src="js/booking.js"></script></body></html>
